@@ -1,0 +1,293 @@
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tra Cứu Thông Tin Dự Thi - E-Sky</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {
+                font-family: "Times New Roman", Times, serif;
+                background-color: #f8fafc;
+            }
+            .info-label {
+                color: #4b5563;
+                font-weight: 600;
+            }
+            .info-value {
+                color: #1e3a8a;
+            }
+        </style>
+    </head>
+    <body class="flex items-center justify-center min-h-screen p-4">
+
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl p-6 md:p-8 border-t-8 border-blue-900">
+            <div class="text-center mb-10">
+                <h2 class="text-lg font-bold text-gray-600 uppercase tracking-wide mb-1">Trung Tâm Ngoại Ngữ và Tin Học E-Sky</h2>
+                <h1 class="text-3xl font-extrabold text-blue-900 uppercase leading-tight">Hệ Thống Tra Cứu Thông Tin Dự Thi</h1>
+                <div class="h-1 w-24 bg-yellow-500 mx-auto my-4"></div>
+                <p class="text-gray-700 font-semibold text-lg italic">Chứng nhận B1 (TVU) - Đợt thi: 17/05/2026</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 mb-10">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Nhập số CCCD của thí sinh..." 
+                    class="flex-1 px-5 py-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 text-xl shadow-inner"
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button 
+                    onclick="performSearch()" 
+                    class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg uppercase tracking-wider"
+                >
+                    Tìm Kiếm
+                </button>
+            </div>
+
+            <div id="resultArea" class="space-y-6">
+                <!-- Khu vực hiển thị thông báo mặc định -->
+                <div class="text-center text-gray-400 py-12 border-2 border-dashed border-gray-100 rounded-xl bg-gray-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <p>Vui lòng nhập số Căn cước công dân để bắt đầu tra cứu.</p>
+                </div>
+            </div>
+
+            <div class="mt-12 text-center text-gray-500 border-t pt-6 text-sm">
+                <p class="font-bold uppercase mb-1">Trung Tâm Ngoại Ngữ và Tin Học E-Sky</p>
+                <p>&copy; Bản quyền thuộc về E-Sky.</p>
+            </div>
+        </div>
+
+        <script>
+            // Dữ liệu CSV thô được nhúng
+            const csvData = `STT,Địa chỉ email,Họ và Tên,Họ và ,Tên,Ngày sinh ,Giới tính,Dân tộc,Nơi sinh ,Số CMND/ CCCD,Điện thoại,Địa chỉ liên hệ ,Trình Độ Đăng ký dự thi,Ghi chú,
+    1,dylinh2501@gmail.com,Đinh Yến Linh,Đinh Yến ,Linh,01/01/2001,Nữ,Kinh,Cà Mau,09530100787,0944004534,"58/22/5 Phan Chu Trinh phường 14 quận Bình Thạnh, Hồ Chí Minh",B1,Cô Huệ Cà Mau,
+    2,lehungminhnhut@gmail.com,Lê Hùng Minh Nhựt,Lê Hùng Minh ,Nhựt,06/06/2002,Nam,Kinh,TP HCM,079202000925,0908897747,"Phường 15, Quận 10, Thành Phố Hồ Chí Minh",B1,Cô Huệ Cà Mau,
+    3,thuyhoan20062024@gmail.com,Hoàng Thị Thúy Hoan,Hoàng Thị Thúy ,Hoan,24/09/1984,Nữ,Kinh,Đắk Lắk,070184000913,0915438195,"nhà nghỉ Xuân Lộc, kp Tiến Thành 3, phường Đồng Xoài, tỉnh Đồng Nai",B1,Cô Huệ Cà Mau,HCE 17/05
+    4,dungck11974@gmail.com,Cao Văn Dũng,Cao Văn ,Dũng,20/02/1974,Nam,Kinh,Thanh Hoá,038074013186,0913104865,"Kp Tiến Thành 1, phường Đồng Xoài, tỉnh Đồng Nai",B1,Cô Huệ Cà Mau,
+    5,nminhtai1509@gmail.com,Nguyễn Minh Tài,Nguyễn Minh ,Tài,15/09/1978,Nam,Kinh,Bình Phước,070078004547,0392757777,725 QL14 Khu phố thanh Bình Phường Bình Phước tỉnh Đồng Nai,B1,Cô Huệ Cà Mau,
+    6,trieuvy6886@gmail.com,Lao Triều Vỹ,Lao Triều ,Vỹ,03/04/1991,Nam,Kinh,TP HCM,079091037086,0888136366,"240/93 Nguyễn Văn Luông Phường Bình Phú, Thành Phố Hồ Chí Minh ( P11 Q6 cũ )",B1,Cô Huệ Cà Mau,
+    7,thanhngan4401@gmail.com,Nguyễn Thanh Ngân,Nguyễn Thanh, Ngân,04/04/2001,Nữ,Kinh,Bình Thuận,060301007810,0901542111,"482/1 Nơ Trang Long, phường 13, quận Bình Thạnh",B1,Cô Huệ Cà Mau,
+    8,nguyenmanhdung234@gmail.com,Thạch Chal Đa Ra,Thạch Chal Đa ,Ra,06/02/1977,Nam,Khmer, Trà Vinh,084077007808,0978762092,"số nhà 420, đường 30/4, phường Long Đức, tỉnh Vĩnh Long",B1,Cô Huệ Cà Mau,
+    9,dotutrinh17@gmail.com,Đổng Thị Tú Trinh,Đổng Thị Tú ,Trinh,17/08/1999,Nữ,Chăm,Ninh Thuận,058199005884,0333000833,"Mỹ Nghiệp, Phước Dân, Ninh Phước, NInh Thuận",B1,Cô Huệ Cà Mau,TVU 17/05
+    10,thanhmaitini14@gmail.com,Phạm Duy Khang,Phạm Duy ,Khang,10/10/1980,Nam,Kinh,Vĩnh Long,083080010888,0836243408,"Trường THCS Trần Thị Tiết, ấp Giao Hòa B xã Thạnh Phong, tỉnh Vĩnh Long",B1,Cô Huệ Cà Mau,
+    11,hoaihanle094@gmail.com,Lê Hoài Hận,Lê Hoài ,Hận,19/03/2003,Nam,Kinh,Đồng Tháp,087203007439,0368812792,Khóm Thanh Tiến Phường Mỹ Trà Tỉnh Đông Tháp,B1,Cô Huệ Cà Mau,
+    12,thuytrang0917232225@gmail.com,Võ Thuỳ Trang,Võ Thuỳ ,Trang,23/03/2003,Nữ,Kinh,Đồng Tháp,087303016980,0823432225,"167, ĐT 852, Khóm Tân Hoà, Phường Sa Đéc, Tỉnh Đồng Tháp",B1,Cô Huệ Cà Mau,
+    13,tranthithuyen934@gmail.com,Trần Thị Thu Yến,Trần Thị Thu,Yến,11/26/2004,Nữ,Kinh,Sóc Trăng,094304004842,0393339926,"Ấp 5, Xã Long Phú, TP. Cần Thơ",B1,Cô Huệ Cà Mau,
+    14,tranthiyennhu004@gmail.com,Trần Thị Yến Như,Trần Thị Yến,Như,25/10/2004,Nữ,Khmer,Sóc Trăng ,094304001101,0329722042,"144 Kênh Cầu Xéo, KV18, Phường Sóc Trăng, TP Cần Thơ",B1,Cô Huệ Cà Mau,
+    15,latrii10c1@gmail.com,Lê Anh Trí,Lê Anh,Trí,29/01/2002,Nữ,Kinh,Cà Mau,095302009155,0945634445,"Cầu Nam Định, khóm Kinh Tế, Phường Hiệp Thành, Tỉnh Cà Mau.",B1,Cô Huệ Cà Mau,
+    16,phuongquyenr8@gmail.com,Bùi Phương Quyên,Bùi Phương ,Quyên,10/11/2000,Nữ,Kinh,Cà Mau,096300002943,0853050663,Ấp rạch láng-Phú Mỹ-Tỉnh Cà Mau,B1,Cô Huệ Cà Mau,
+    17,duythuy21101998@gmail.com,Ngô Thúy Duy,Ngô Thúy ,Duy,21/10/1998,Nữ,Kinh, Cà Mau,095198007389,0828533548,"ấp Mỹ Tân, Xã Phước Long, Tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    18,nguyenthitthuyan1509gmail.com,Nguyễn Thị Thúy An,Nguyễn Thị Thúy ,An,15/09/1997,Nữ,Kinh, Cà Mau,095197003752,0949434812,"ấp Vĩnh Phú B, Xã Phước Long, Tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    19,nhanhongthu249124@gmail.com,Nhan Hồng Thư,Nhan Hồng ,Thư,10/01/1994,Nữ,Kinh,Cà Mau,096194002688,0914249124,"Khóm 23 , Phường Tân Xuyên , Thành phố Cà Mau",B1,Cô Huệ Cà Mau,
+    20,lieuloanbvdkcm@gmail.com,Liêu Tú Loan,Liêu Tú ,Loan,19/04/1986,Nữ,Kinh,Cà Mau,095186007900,0932779113,"khóm 9,phường Hòa Thành,tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    21,huyenhuyen1208@gmail.com,Lê Ngọc Huyền,Lê Ngọc ,Huyền,19/05/1996,Nữ,Kinh,Cà Mau,096196012866,0778180839,"Ấp Kinh Đứng B, xã Khánh Hưng, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    22,nguyenthibengoan011190@gmail.com,Nguyễn Thị Bé Ngoan,Nguyễn Thị Bé ,Ngoan,01/11/1990,Nữ,Kinh,Cà Mau,096190005863,0949514606,"Ấp 1, xã Hồ Thị Kỷ, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    23,quynhtrang210204@gmail.com,Nguyễn Thị Quỳnh Trang,Nguyễn Thị Quỳnh ,Trang,21/02/2004,Nữ,Kinh,Cà Mau,096304010249,0916954890,"Ấp Tân Điền A, xã Thanh Tùng, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    24,tuyentran170503@gmail.com,Trần Thị Bích Tuyền,Trần Thị Bích ,Tuyền,17/05/2003,Nữ,Kinh,Sóc Trăng,094303002693,0879621201,"ấp Năm Căn, xã Lai Hoà, thành phố Cần Thơ",B1,Cô Huệ Cà Mau,
+    25,maithitran85@gmail.com,Trần Thị Mai Thi,Trần Thị Mai,Thi,28/01/1985,Nữ,Kinh,Cà Mau,096185019169,0915994344,"Phường Tân Thành,Tỉnh Cà Mau",B1,Cô Huệ Cà Mau,Cà Mau 17/05
+    26,thanhphong2021kg@gmail.com,Nguyễn Thanh Phong,Nguyễn Thanh ,Phong,01/01/1993,Nam,Kinh,Cà Mau,096093005413,0878888669,"ấp 9 xã tân lộc, cà mau",B1,Cô Huệ Cà Mau,
+    27,phucct1432q023@gmail.com,Huỳnh Công Phúc,Huỳnh Công ,Phúc,27/05/1972,Nam,Kinh,TP HCM,079072025742,0963232606,"P. Tân An, TP. Cần Thơ",B1,Cô Huệ Cà Mau,
+    28,vutran.021999@gmail.com,Trần Quang Vủ,Trần Quang ,Vủ,07/12/1999,Nữ,Kinh,Cà Mau,096099010005,0829580482,"ấp Vàm Đình, xã Phú Mỹ, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    29,aihuynhvts@gmail.com,Lý Ái Huỳnh,Lý Ái,Huỳnh,20/08/1984,Nữ,Kinh,Cà Mau,096184007560,0917605704,"Ấp 7, xã U Minh, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    30,ongyen98@gmail.com,Ong Thị Mỹ Yên,Ong Thị Mỹ ,Yên,21/10/1998,Nữ,Kinh,Cà Mau,096198010025,0944625291,"Ấp Má Tám, xã Nguyễn Việt Khái, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    31,ngocthuycamau88@gmail.com,Huỳnh Ngọc Thúy,Huỳnh Ngọc ,Thúy,15/09/1987,Nữ,Kinh,Cà Mau,095187008820,0919985770,"Khóm 4, phường Tân Thành, Cà Mau",B1,Cô Huệ Cà Mau,
+    32,vohoangphi001@gmail.com,Võ Hoàng Phi,Võ Hoàng,Phi,21/01/2003,Nam,Kinh,Cà Mau,096203010599,0966682076,"ấp Thọ Mai, xã Phú Mỹ, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    33,n.mynhucm@gmail.com,Ngô Mỹ Như,Ngô Mỹ ,Như,21/11/1996,Nữ,Kinh,Cà Mau,096196011597,0836875900,"Trường Tiểu học 1 Đất Mũi, xã Đất Mũi, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    34,thinh44478@gmail.com,Trần Đức Thịnh,Trần Đức ,Thịnh,20/04/1997,Nam,Kinh,Cà Mau,095097000197,0919869534,"Khóm 4, phường Vĩnh Trạch, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    35,quyen020804@gmail.com,Dư Tố Quyên,Dư Tố,Quyên,02/08/2004,Nữ,Khmer,Cà Mau,095304005269,0858154145,"xã Ninh Thạnh Lợi, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    36,huynhthithanhvan1908@gmail.com,Huỳnh Thị Thanh Vân,Huỳnh Thị Thanh,Vân,19/08/2004,Nữ,Kinh,Bạc Liêu,094304000576,0913953613,"Phường Mỹ Quới, thành phố Cần Thơ",B1,Cô Huệ Cà Mau,
+    37,dongtruclam.hdbl@gmail.com,Đồng Thị Chúc Lam,Đồng Thị Chúc,Lam,06/09/2004,Nữ,Kinh,Cà Mau,095304008297,0363375748,"ấp sơn trắng, xã Vĩnh Lộc, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    38,nguyenthivanthuhd91@gmail.com,Nguyễn Thị Vân Thư,Nguyễn Thị Vân,Thư,02/09/2004,Nữ,Kinh,Bạc Liêu,095304003533,0867897645,"Ấp Ninh Tiến, xã Ninh Quới, Tỉnh Cà",B1,Cô Huệ Cà Mau,
+    39,tranthithuyngan6161@gmail.com,Trần Thị Thùy Ngân,Trần Thị Thùy,Ngân,07/12/1986,Nữ,Kinh,Kiên Giang,091186011038,0947676161,"Ấp 10 Huỳnh, Xã An Minh, Tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    40,doanngocduy1524@gmail.com,Đoàn Ngọc Duy,Đoàn Ngọc,Duy,15/02/2004,Nữ,Kinh,Bạc Liêu,094304015955,0819969004,"Ấp Xẻo Cóc, xã Lai Hòa, thành phố Cần Thơ",B1,Cô Huệ Cà Mau,
+    41,nguyenbichtrambl2024@gmail.com,Nguyễn Bích Trâm,Nguyễn Bích,Trâm,26/06/2004,Nữ,Kinh,Bạc Liêu,095304008908,0833825174,"Ấp Nàng Rèn, xã Châu Thới, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    42,dangthituongvi040224@gmail.com,Đặng Thị Tường Vi,Đặng Thị Tường,Vi,13/02/2004,Nữ,Kinh,Kiên Giang,091304001302,0834584992,"Ấp Vĩnh Phước 2, xã Vĩnh Phong, tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    43,lyhieu432000@gmail.com,Lý Văn Hiếu,Lý Văn,Hiếu,04/03/2000,Nam,Khmer,Cần Thơ,094200003929,0948380424,"Số 2 đường tránh, quốc lộ 1A, khóm 1 phường 7 thành Phố Bạc Liêu",B1,Cô Huệ Cà Mau,
+    44,nanguyen159.25@gmail.com,Nguyễn Thị Bé Na,Nguyễn Thị Bé,Na,15/09/2005,Nữ,Kinh,Cà Mau,095305000311,0825409050,"Khóm 24, Phường Bạc Liêu, Tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    45,nghip938@gmail.com,Lâm Vương Phương Nghi,Lâm Vương Phương,Nghi,10/03/2005,Nữ,Kinh,Cà Mau,095305007772,0946885771,"Khóm Trà Kha B, Phường Bạc Liêu, Tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    46,kimphung12345n@gmail.com,Phạm Kim Phụng,Phạm Kim,Phụng,25/09/2005,Nữ,Kinh,Cà Mau,095305008169,0385075700,"Ấp đồng lớn 1, xã Vĩnh Mỹ , Cà Mau",B1,Cô Huệ Cà Mau,
+    47,ntran26035@gmail.com,Phạm Thị Ngọc Trân,Phạm Thị Ngọc,Trân,26/03/2005,Nữ,Kinh,Cà Mau,095305005112,0813936205,"Ấp 16, Xã Vĩnh Hậu , tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    48,lyminhthong93@gmail.com,Lý Minh Thông,Lý Minh,Thông,26/04/2005,Nam,Kinh,Cà Mau,095205000226,0833256707,"ấp Vườn Cò, xã Hưng Hội, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    49,dongankoo88@gmail.com,Đỗ Tuyết Ngân,Đỗ Tuyết,Ngân,22/02/2005,Nữ,Kinh,Cà Mau,095305002738,0942696254,Khóm20 - phường Bạc Liêu - tỉnh Cà Mau,B1,Cô Huệ Cà Mau,
+    50,vuphong.island@gmail.com,Lê Vũ Phong,Lê Vũ,Phong,15/09/1995,Nam,Kinh,Kiên Giang,091095011199,0823669959,163 ấp bãi chướng xã hòn nghệ tỉnh an giang,B1,Cô Huệ Cà Mau,
+    51,ngoanho28091993@gmail.com,Hồ Chí Ngoan,Hồ Chí,Ngoan,28/09/1993,Nam,Kinh,Cần Thơ,094093013991,0373613625,"132 - Khóm Tân Qui, phường Vĩnh Phước, Thành Phố Cần Thơ",B1,Cô Huệ Cà Mau,
+    52,cuong0949535513@gmail.com,Danh Hận,Danh,Hận,15/06/2001,Nam,Khmer,Kiên Giang,091201004635,0384378563,"Ấp Ngã Con Long Thạnh, Giồng Riềng, Kiên Giang",B1,Cô Huệ Cà Mau,
+    53,nhuy0853744975@gmail.com,Kim Chí Thành,Kim Chí,Thành,30/04/1994,Nam,Khmer,Sóc Trăng,094094010565,0767718996,"Ấp Đại Nôn, Liêu Tú, Trần Để, Sóc Trăng",B1,Cô Huệ Cà Mau,
+    54,td089277@gmail.com,Dương Chanh Đô Ra,Dương Chanh Đô,Ra,01/01/1992,Nam,Khmer,Sóc Trăng,094092001066,0336419628,"Ấp Tiếp Nhựt, Viên An, Trần Đề, Sóc Trăng",B1,Cô Huệ Cà Mau,
+    55,tranhuutin2003bl@gmail.com,Lâm Ngọc Trường,Lâm Ngọc,Trường,18/11/1999,Nam,Khmer,Sóc Trăng,094099001933,0772714062,"Đại Nghĩa Thắng, Đại Tâm, Mỹ Xuyên, Sóc Trăng",B1,Cô Huệ Cà Mau,
+    56,Thachtuyetkhamx2020@gmail.com,Đinh Sà Oanh,Đinh Sà,Oanh,26/05/1986,Nam,Khmer,Sóc Trăng,094086018008,0384356594,"Tài Văn, Trần Đề, Sóc Trăng",B1,Cô Huệ Cà Mau,
+    57,Kanhnha87@gmail.com,Dương Thị Sà Phết Canh Nha,Dương Thị Sà Phết Canh,Nha,23/06/1987,Nữ,Khmer,Sóc Trăng,094187013852,0365671449,"Xẻo Me, Vĩnh Phước, Thị Xã Vĩnh Châu, Sóc Trăng",B1,Cô Huệ Cà Mau,
+    58,lycongduc879@gmail.com,Lý Công Đức,Lý Công,Đức,01/01/1985,Nam,Khmer,Sóc Trăng,094085006549,0372732706,"Ấp Bưng Sa, Viên An, Trần Đề, Sóc Trăng",B1,Cô Huệ Cà Mau,
+    59,schanhdon@gmail.com,Sơn Chành Đon,Sơn Chành,Đon,05/07/1983,Nam,Khmer,Sóc Trăng,094083004347,0702871438,"Khóm Vĩnh Bình, Phường 2, Thị Xã Vĩnh Châu, Sóc Trăng",B1,Cô Huệ Cà Mau,
+    60,thachsualh2@gmail.com,Thạch Sua,Thạch,Sua,26/10/1987,Nam,Khmer,Sóc Trăng,094087009213,0366468166,"khu vực Sân Chim, Phường Vĩnh Châu, TP. Cần Thơ",B1,Cô Huệ Cà Mau,
+    61,nguyennhi0912887572@gmail.com,Châu Ngọc Giàu,Châu Ngọc,Giàu,20/05/1983,Nữ,Kinh,Cà Mau,095183000584,0948787161,"Khóm 12, Láng Tròn, Cà Mau",B1,Cô Huệ Cà Mau,
+    62,huynhtantaibl2023@gmail.com,Huỳnh Tấn Phát,Huỳnh Tấn,Phát,28/02/1987,Nam,Kinh,Cà Mau,095087002589,0911945933,điểm Trạm y tế Hiệp Thành - phường Hiệp Thành - tỉnh Cà Mau,B1,Cô Huệ Cà Mau,
+    63,tangvu2212@gmail.com,Tăng Hoài Linh,Tăng Hoài,Linh,02/01/1990,Nam,Kinh,Kiên Giang,091090019382,0947457538,"Tổ 1, Ấp Khánh Hòa, xã Giang Thành, An Giang",B1,Cô Huệ Cà Mau,
+    64,chanphong6112018@gmail.com,Mã Thanh Tú,Mã Thanh,Tú,08/06/1996,Nữ,Kinh,Sóc Trăng,094196004326,0961162973,,B1,Cô Huệ Cà Mau,
+    65,tranglnh070972@gmail.com,Lê Ngọc Hương Trang,Lê Ngọc Hương,Trang,07/09/1972,Nữ,Kinh,TP HCM,079172018544,0964649021,"Tổ 4, khu phố 10-Dương Đông, đặc khu Phú Quốc, tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    66,mytrangthdd1@gmail.com,Đỗ Thị Mỹ Trang,Đỗ Thị Mỹ,Trang,25/05/1981,Nữ,Kinh,Quảng Nam,049181000474,0393106833,,B1,Cô Huệ Cà Mau,
+    67,mythiennguyen80@gmail.com,Nguyễn Thị Mỹ Thiện,Nguyễn Thị Mỹ,Thiện,11/12/1980,Nữ,Kinh,Kiên Giang ,091180001713,0914844964,"Khu phố 7, Dương Đông, đặc khu Phú Quốc, An Giang",B1,Cô Huệ Cà Mau,
+    68,nguyentienthanh1983.gk@gmail.com,Nguyễn Tiến Thành,Nguyễn Tiến,Thành,20/12/1983,Nam,Kinh,Kiên Giang,091083021919,0329623454,"Ấp Kinh Tư, Bình Giang, An Giang",B1,Cô Huệ Cà Mau,
+    69,Haidanh27@gmail.com,Danh Hải,Danh,Hải,27/05/1991,Nam,Khmer,Kiên Giang,091091008751,0965515113,"TTYT Hà tiên, An Giang",B1,Cô Huệ Cà Mau,
+    70,tamtieuhoc28@gmail.com,Bùi Văn Tâm,Bùi Văn,Tâm,29/12/1973,Nam,Kinh,Vĩnh Long,068073000487,0945579594,"số 1 Trần Phú, KP 3, Dương Đông, Phú Quốc, An Giang",B1,Cô Huệ Cà Mau,
+    71,vupn21401@gmail.com,Phùng Nhật Vũ,Phùng Nhật,Vũ,01/08/1968,Nam,Kinh,Đồng Tháp,082068021320,0913820737,"khu phố 5 Dương Đông, đặc khu Phú Quốc",B1,Cô Huệ Cà Mau,
+    72,hangvo21703@gmail.com,Võ Thị Hằng,Võ Thị,Hằng,09/05/1980,Nữ,Kinh,Hà Tĩnh,042180003281,0912433464,"Tổ 7 khu phố 11 Dương Đông, đặc khu Phú Quốc, tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    73,cafeutphuong@gmail.com,Lê Thị Thơ,Lê Thị,Thơ,21/01/1991,Nữ,Kinh,Thái Bình,034191008900,0946902390,"TTYT Hà tiên, An Giang",B1,Cô Huệ Cà Mau,
+    74,Huynhbathien@gmail.com,Huỳnh Bá Thiện,Huỳnh Bá,Thiện,01/06/1982,Nam,Kinh,Kiên Giang,091082012520,0919364437,"TTYT Hà tiên, An Giang",B1,Cô Huệ Cà Mau,
+    75,phamhieuht.ag@gmail.com,Phạm Trung Hiếu,Phạm Trung,Hiếu,11/09/1986,Nam,Kinh,Kiên Giang,091086006561,0986559163,"TTYT Hà tiên, An Giang",B1,Cô Huệ Cà Mau,
+    76,nguyenhoc198854@gmail.com,Nguyễn Văn Học,Nguyễn Văn,Học,05/04/1988,Nam,Kinh,Hà Nam,035088007833,0917661177,"TTYT Hà tiên, An Giang",B1,Cô Huệ Cà Mau,
+    77,vuhoang300@gmail.com,Lái Hoàng Vũ,Lái Hoàng,Vũ,25/12/1984,Nam,Khmer,Kiên Giang,091084015975,0374641000,"TTYT Hà tiên, An Giang",B1,Cô Huệ Cà Mau,
+    78,Vanhuu21ct@gmail.com,Dương Văn Hữu,Dương Văn,Hữu,17/01/1983,Nam,Kinh,Kiên Giang,091083022141,0986767680,"TTYT Hà tiên, An Giang",B1,Cô Huệ Cà Mau,
+    79,"maiquynh041985@gmail.com 
+    ",Đinh Thị Mai Quỳnh,Đinh Thị Mai,Quỳnh,04/04/1985,Nữ,Kinh,Kiên Giang,091185013577,0944898050,"xã Hòa Điền, tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    80,nga0945626807@gmail.com,Nguyễn Thị Nga,Nguyễn Thị,Nga,05/06/1992,Nữ,Kinh,Kiên Giang,091192009312,0945626807,"503/18 Nguyễn Phi Khanh, phường vĩnh quang, rạch giá, kiên giang",B1,Cô Huệ Cà Mau,
+    81,hangltb1230@gmail.com,Lê Thị Bích Hằng,Lê Thị Bích,Hằng,23/12/1975,Nữ,Kinh,Quảng Bình,091175001484,0849128787,"Khu phố Cây Thông Trong Cửa Dương, Phú Quốc, An Giang",B1,Cô Huệ Cà Mau,
+    82,yaua2005@icolud.com,Kim Hạnh Kiều Duyên,Kim Hạnh Kiều,Duyên,15/12/2005,Nữ,Khơmer,Cần Thơ,094305002503,0353979062,"Ấp prey chóp B,Xã lai hoà , thành phố cần thơ",B1,Cô Huệ Cà Mau,
+    83,phamngoctien2000@gmail.com,Phạm Ngọc Tiên,Phạm Ngọc,Tiên,20/03/1979,Nữ,Kinh,Kiên Giang,091179001794,0939880704,"Tổ 2, Cây Thông Ngoài-Cửa Dương-Phú Quốc",B1,Cô Huệ Cà Mau,
+    84,tuyencd2@gmail.com,Lê Thị Hồng Tuyến,Lê Thị Hồng,Tuyến,07/03/1978,Nữ,Kinh,Vĩnh Phú,025178003802,0377337673,"Tổ 5, ấp Suối Cát Cửa Dương-Phú Quốc, An Giang",B1,Cô Huệ Cà Mau,
+    85,tamltdd3@gmail.com,Lê Thị Tâm,Lê Thị,Tâm,30/04/1975,Nữ,Kinh,Thanh Hoá,091175001095,0397995865,"Tổ 10, khu phố 12 Dương Đông, đặc khu Phú Quốc, tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    86,thuyntb21401@gmail.com,Nguyễn Thị Bích Thủy,Nguyễn Thị Bích,Thủy,24/07/1973,Nữ,Kinh,Đồng Tháp,087173015504,0354638889,"số 12 đường 30/4, khu phố 1 Dương Đông, đặc khu Phú Quốc",B1,Cô Huệ Cà Mau,
+    87,tranthikieutienpq89@gmail.com,Trần Thị Kiều Tiên,Trần Thị Kiều,Tiên,01/10/1989,Nữ,Kinh,An Minh,091189000858,0379499546,"Kp10,Duong Đông, đặc khu Phú Quốc",B1,Cô Huệ Cà Mau,
+    88,Linhlepq1202@gmail.com,Lê Thị Linh,Lê Thị,Linh,02/02/1991,Nữ,Kinh,Kiên Giang,091191008790,0359808078,khu phố cây thông trong cửa dương - đặc khu phú quốc - An Giang,B1,Cô Huệ Cà Mau,
+    89,ductu1994hdhdhd@gmail.com,Nguyễn Đức Tú,Nguyễn Đức,Tú,02/07/1994,Nam,Kinh,Hải Dương,030094013925,0903037512,khu phố cây thông trong cửa dương - đặc khu phú quốc - An Giang,B1,Cô Huệ Cà Mau,
+    90,tuyenntm2023@gmail.com,Nguyễn Thị Bích Tuyền,Nguyễn Thị Bích,Tuyền,11/08/1983,Nữ,Kinh,Hậu Giang,093183009495,0333660151,khu phố 6 dương đông - đặc khu phú quốc - an giang,B1,Cô Huệ Cà Mau,
+    91,hoxuanthanh0202@gmail.com,Hồ Xuân Thành,Hồ Xuân,Thành,02/02/1992,Nam,Kinh,Kiên Giang,091092000893,0934171353,Khu Phố 5 Dương Đông Đặc Khu Phú Quốc Tỉnh An Giang,B1,Cô Huệ Cà Mau,
+    92,Thanhtrung6824@gmail.com,Nguyễn Thị Trầm,Nguyễn Thị,Trầm,08/08/1989,Nữ,Kinh,Kiên Giang,091189009421,0372010394,khu phố 6 dương đông- đặc khu phú quốc - an giang,B1,Cô Huệ Cà Mau,
+    93,ntbnhi5891@gmail.com,Nguyễn Thị Bích Nhi,Nguyễn Thị Bích,Nhi,16/06/1985,Nữ,Kinh,Quảng Ngãi,051185007784,0976455426,khu phố 9 dương đông- đặc khu Phú Quốc- An Giang,B1,Cô Huệ Cà Mau,
+    94,tycoastguard@gmail.com,Nguyễn Trần Đăng Hưng,Nguyễn Trần Đăng,Hưng,03/05/1987,Nam,Kinh,Gia Lai,064087004807,0969213789,"Khu phố 4 An Thới, Đặc khu Phú Quốc, tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    95,tranthituyetthu1994@gmail.com,Trần Thị Tuyết Thư,Trần Thị Tuyết,Thư,01/01/1994,Nữ,Kinh,Cà Mau,095194002732,0838900199,"Tổ 13, ấp Hòa Thành, xã Minh Thạnh, thành phố Hồ Chí Minh",B1,Cô Huệ Cà Mau,
+    96,btrann.1403@gmail.com,Bùi Thị Bảo Trân,Bùi Thị Bảo,Trân,14/03/2000,Nữ,Kinh,Vĩnh Long,086300003807,0377885950,"Ấp 3, xã Tam Bình, Vĩnh Long",B1,Cô Huệ Cà Mau,
+    97,ngathien053@gmail.com,Đỗ Thị Kiều Nga,Đỗ Thị Kiều,Nga,11/11/1995,Nữ,Kinh,Kiên Giang,091195010891,0941604788,"Số 3 tổ 1 xã Hòn Đất, tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    98,tuyennguyen162024@gmail.com,Nguyễn Quốc Tuyển ,Nguyễn Quốc,Tuyển,16/12/1991,Nam,Kinh,Cà Mau,096091013370,0941909193,"Khóm 8, P. Lý Văn Lâm, Cà Mau",B1,Cô Huệ Cà Mau,
+    99,huongsd11984@gmail.com,Trần Thị Hường,Trần Thị,Hường,21/10/1984,Nữ,Kinh,Cà Mau,096184011156,0907268315,"Ấp 10, Xã Sông Đốc, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    100,Minhtoan087078@gmail.com,Quách Minh Toàn,Quách Minh,Toàn,09/09/1997,Nam,Kinh,Cà Mau,096097006867,0916087078,"Ấp 5. Xã U Minh, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    101,Tranvy120284@gmail.com,Trần Hữu Vy,Trần Hữu,Vy,12/02/1984,Nam,Khmer,Cà Mau,096084007167,0948635353,"108/20A, Lý Thường Kiệt, Khóm 28, P. Tân Thành, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    102,maithianhcm1977@gmail.com,Mai Thị Anh,Mai Thị,Anh,20/04/1977,Nữ,Kinh,Cà Mau,096177001677,0982253301,Trường PT. Hermann Gmeiner Cà Mau,B1,Cô Huệ Cà Mau,
+    103,Tranbaoquyen65@gmail.com,Trần Bảo Quyên,Trần Bảo,Quyên,14/03/2003,Nữ,Khmer,Cà Mau,096303001188,0941108514,"Ấp 15, xã U Minh, tỉnh Cà Mau",B1,Cô Huệ Cà Mau,
+    104,honghoang200309@gmail.com,Hoàng Thị Hồng,Hoàng Thị,Hồng,09/02/2003,Nữ,Kinh,An Giang,091303003159,0333561471,"150A Võ Trường Toản, Phường Rạch Giá, Tỉnh An Giang",B1,Cô Huệ Cà Mau,
+    105,Phuongnhung01011975@gmail.com,Trần Thị Phương Nhung,Trần Thị Phương ,Nhung,01/01/1975,Nữ,Kinh,Cà Mau,096175006646      ,0946055954,"Xã Cái Nước, Tỉnh Cà Mau",B1,Cô Huệ Cà Mau,`;
+
+            // Hàm phân tích dữ liệu CSV
+            function parseCSV(text) {
+                let p = '', row = [''], ret = [row], i = 0, r = 0, s = !0, l;
+                for (l of text) {
+                    if ('"' === l) {
+                        if (s && l === p) row[i] += l;
+                        s = !s;
+                    } else if (',' === l && s) l = row[++i] = '';
+                    else if ('\n' === l && s) {
+                        if ('\r' === p) row[i] = row[i].slice(0, -1);
+                        row = ret[++r] = [l = '']; i = 0;
+                    } else row[i] += l;
+                    p = l;
+                }
+                
+                // Loại bỏ tiêu đề
+                ret.shift();
+                
+                // Map dữ liệu vào object dựa trên cấu trúc cột:
+                // 0: STT, 1: Email, 2: Họ và Tên, 8: Nơi sinh, 9: CCCD, 10: Điện thoại, 11: Địa chỉ liên hệ, 12: Trình độ
+                return ret.map(col => ({
+                    email: col[1] ? col[1].trim() : '',
+                    name: col[2] ? col[2].trim() : '',
+                    dob: col[5] ? col[5].trim() : '',
+                    gender: col[6] ? col[6].trim() : '',
+                    pob: col[8] ? col[8].trim() : '', // Nơi sinh
+                    cccd: col[9] ? col[9].trim() : '',
+                    phone: col[10] ? col[10].trim() : '',
+                    address: col[11] ? col[11].trim() : '',
+                    level: col[12] ? col[12].trim() : '',
+                    note: col[13] ? col[13].trim() : ''
+                })).filter(item => item.cccd !== '');
+            }
+
+            const candidates = parseCSV(csvData);
+
+            function handleKeyPress(e) {
+                if (e.key === 'Enter') performSearch();
+            }
+
+            function performSearch() {
+                const searchInput = document.getElementById('searchInput').value.trim();
+                const resultArea = document.getElementById('resultArea');
+
+                if (!searchInput) {
+                    resultArea.innerHTML = `
+                        <div class="bg-red-50 border-l-4 border-red-600 text-red-800 p-4 rounded-lg animate-pulse" role="alert">
+                            <p class="font-bold">Lỗi!</p>
+                            <p>Vui lòng nhập số Căn cước công dân để tra cứu.</p>
+                        </div>`;
+                    return;
+                }
+
+                const results = candidates.filter(c => c.cccd === searchInput);
+
+                if (results.length > 0) {
+                    let htmlContent = `<h2 class="text-2xl font-bold text-gray-800 border-b-2 border-yellow-500 pb-2 mb-6">Thông Tin Thí Sinh:</h2>`;
+                    
+                    results.forEach(student => {
+                        htmlContent += `
+                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="bg-blue-900 text-white p-4">
+                                    <h3 class="font-bold text-2xl uppercase">${student.name}</h3>
+                                    <p class="opacity-80 text-sm">Mã số hồ sơ: ${student.cccd}</p>
+                                </div>
+                                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-lg">
+                                    <div>
+                                        <p class="info-label text-xs uppercase tracking-widest mb-1">Ngày sinh</p>
+                                        <p class="info-value font-medium">${student.dob || 'Đang cập nhật'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="info-label text-xs uppercase tracking-widest mb-1">Giới tính</p>
+                                        <p class="info-value font-medium">${student.gender || 'Đang cập nhật'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="info-label text-xs uppercase tracking-widest mb-1">Nơi sinh</p>
+                                        <p class="info-value font-medium">${student.pob || 'Đang cập nhật'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="info-label text-xs uppercase tracking-widest mb-1">Số điện thoại</p>
+                                        <p class="info-value font-medium">${student.phone || 'Đang cập nhật'}</p>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <p class="info-label text-xs uppercase tracking-widest mb-1">Địa chỉ Email</p>
+                                        <p class="info-value font-medium truncate">${student.email || 'Chưa cung cấp'}</p>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <p class="info-label text-xs uppercase tracking-widest mb-1">Địa chỉ liên hệ</p>
+                                        <p class="info-value font-medium leading-relaxed">${student.address || 'Đang cập nhật'}</p>
+                                    </div>
+                                    <div class="md:col-span-2 bg-yellow-50 p-4 rounded-lg border border-yellow-100 flex justify-between items-center">
+                                        <div>
+                                            <p class="info-label text-xs uppercase tracking-widest mb-1">Trình độ đăng ký</p>
+                                            <p class="text-2xl font-black text-red-700">${student.level}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-gray-400 italic">Trạng thái hồ sơ</p>
+                                            <p class="text-green-600 font-bold uppercase text-sm italic">Đã xác nhận</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    resultArea.innerHTML = htmlContent;
+                } else {
+                    resultArea.innerHTML = `
+                        <div class="bg-gray-50 border-2 border-gray-200 text-gray-600 p-8 rounded-xl text-center" role="alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-xl font-bold mb-2">Không tìm thấy thông tin!</p>
+                            <p>Số CCCD <b>"${searchInput}"</b> không tồn tại trong hệ thống đợt này. <br> Vui lòng kiểm tra lại số thẻ hoặc liên hệ trung tâm để được hỗ trợ.</p>
+                        </div>`;
+                }
+            }
+        </script>
+    </body>
+    </html>
