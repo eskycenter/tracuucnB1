@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Xác Nhận Thông Tin - TTNN&TH BDU Cà Mau</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+        }
+        /* Tối ưu thanh cuộn mượt mà */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-[#003366] text-white py-6 shadow-md px-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="text-center md:text-left">
+                <h1 class="text-lg md:text-2xl font-bold uppercase tracking-wide">
+                    Phân hiệu Trường Đại học Bình Dương tại Cà Mau
+                </h1>
+                <p class="text-sm md:text-base text-blue-200 mt-1 font-semibold">
+                    Trung tâm Ngoại ngữ và Tin học - Cơ sở dữ liệu xác nhận thông tin
+                </p>
+            </div>
+            <div class="bg-blue-800/40 border border-blue-400/30 px-4 py-2 rounded-lg text-center">
+                <span class="text-xs uppercase text-blue-300 block font-semibold">Cập nhật mới nhất</span>
+                <span class="text-sm font-bold text-yellow-300">DT06 - 17/05/2026</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+        
+        <!-- Widgets Thống kê nhanh -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <span class="text-gray-500 text-xs md:text-sm font-semibold">Tổng học viên</span>
+                <span class="text-2xl md:text-3xl font-bold text-blue-900 mt-1" id="stat-total">91</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <span class="text-gray-500 text-xs md:text-sm font-semibold">Tổng số Nữ</span>
+                <span class="text-2xl md:text-3xl font-bold text-pink-600 mt-1" id="stat-female">54</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <span class="text-gray-500 text-xs md:text-sm font-semibold">Tổng số Nam</span>
+                <span class="text-2xl md:text-3xl font-bold text-sky-600 mt-1" id="stat-male">37</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <span class="text-gray-500 text-xs md:text-sm font-semibold">Dân tộc Khmer</span>
+                <span class="text-2xl md:text-3xl font-bold text-amber-600 mt-1" id="stat-khmer">22</span>
+            </div>
+        </div>
+
+        <!-- Bộ lọc & Ô Tìm kiếm -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <!-- Tìm kiếm tổng thể -->
+                <div class="relative md:col-span-2">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
+                    <input type="text" id="search-input" placeholder="Tìm theo tên, số điện thoại, nơi sinh..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                
+                <!-- Lọc Giới tính -->
+                <div>
+                    <select id="filter-gender" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700">
+                        <option value="">-- Tất cả Giới tính --</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                </div>
+
+                <!-- Lọc Dân tộc -->
+                <div>
+                    <select id="filter-ethnic" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700">
+                        <option value="">-- Tất cả Dân tộc --</option>
+                        <option value="Kinh">Kinh</option>
+                        <option value="Khmer">Khmer</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between text-xs text-gray-500 pt-2 border-t border-slate-100 gap-2">
+                <div>
+                    Đang hiển thị <span class="font-bold text-blue-600" id="count-display">91</span> / 91 kết quả.
+                </div>
+                <button id="btn-reset" class="text-blue-600 hover:underline font-bold">Xóa tất cả bộ lọc</button>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách - Trên Desktop -->
+        <div class="hidden md:block bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden">
+            <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                <thead class="bg-slate-50 text-slate-700 font-bold uppercase text-xs">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-center w-12">STT</th>
+                        <th scope="col" class="px-6 py-3">Họ và Tên</th>
+                        <th scope="col" class="px-4 py-3 text-center">Ngày Sinh</th>
+                        <th scope="col" class="px-4 py-3 text-center">Giới Tính</th>
+                        <th scope="col" class="px-4 py-3">Nơi Sinh</th>
+                        <th scope="col" class="px-4 py-3 text-center">Dân Tộc</th>
+                        <th scope="col" class="px-6 py-3 text-center">Số Điện Thoại</th>
+                        <th scope="col" class="px-6 py-3 text-center w-56">Tác vụ liên hệ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700" id="table-body">
+                    <!-- Sẽ được chèn tự động bởi Javascript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Danh sách thẻ - Trên Mobile -->
+        <div class="block md:hidden space-y-4" id="cards-container">
+            <!-- Sẽ được chèn tự động bởi Javascript -->
+        </div>
+
+        <!-- Màn hình rỗng khi không tìm thấy kết quả -->
+        <div id="no-result" class="hidden text-center py-12 bg-white rounded-xl shadow-sm border border-slate-100">
+            <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-gray-500 font-bold text-lg">Không tìm thấy thông tin phù hợp</p>
+            <p class="text-gray-400 text-sm mt-1">Vui lòng kiểm tra lại từ khóa hoặc bộ lọc của bạn.</p>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 py-4 text-center text-xs px-4 mt-8 border-t border-slate-700">
+        <p>&copy; 2026 Phân hiệu Đại học Bình Dương tại Cà Mau - Trung tâm Ngoại ngữ và Tin học.</p>
+    </footer>
+
+    <!-- Toasts thông báo khi sao chép -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg text-sm transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50">
+        Đã sao chép số điện thoại thành công!
+    </div>
+
+    <!-- Script dữ liệu và xử lý bộ lọc -->
+    <script>
+        // Toàn bộ cơ sở dữ liệu gồm 91 học viên chuẩn xác từ tài liệu PDF
+        const dataSet = [
+            { stt: 1, hoTen: "Nguyễn Thị Thúy An", ngaySinh: "15/09/1997", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0949434812" },
+            { stt: 2, hoTen: "Mai Thị Anh", ngaySinh: "20/04/1977", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0982253301" },
+            { stt: 3, hoTen: "Sơn Chành Don", ngaySinh: "05/07/1983", phai: "Nam", noiSinh: "Sóc Trăng", danToc: "Khmer", sdt: "0702871438" },
+            { stt: 4, hoTen: "Lý Công Đức", ngaySinh: "01/01/1985", phai: "Nam", noiSinh: "Sóc Trăng", danToc: "Khmer", sdt: "0372732706" },
+            { stt: 5, hoTen: "Ngô Thúy Duy", ngaySinh: "21/10/1998", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0828533548" },
+            { stt: 6, hoTen: "Đoàn Ngọc Duy", ngaySinh: "15/02/2004", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0819969004" },
+            { stt: 7, hoTen: "Kim Hạnh Kiều Duyên", ngaySinh: "15/12/2005", phai: "Nữ", noiSinh: "Cần Thơ", danToc: "Khmer", sdt: "0353979062" },
+            { stt: 8, hoTen: "Châu Ngọc Giàu", ngaySinh: "20/05/1983", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0948787161" },
+            { stt: 9, hoTen: "Danh Hải", ngaySinh: "27/05/1991", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Khmer", sdt: "0965515113" },
+            { stt: 10, hoTen: "Danh Hận", ngaySinh: "15/06/2001", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Khmer", sdt: "0384378563" },
+            { stt: 11, hoTen: "Võ Thị Hằng", ngaySinh: "09/05/1980", phai: "Nữ", ngaySinh: "09/05/1980", noiSinh: "Hà Tĩnh", danToc: "Kinh", sdt: "0912433464" },
+            { stt: 12, hoTen: "Lê Thị Bích Hằng", ngaySinh: "23/12/1975", phai: "Nữ", noiSinh: "Quảng Bình", danToc: "Kinh", sdt: "0849128787" },
+            { stt: 13, hoTen: "Lý Văn Hiếu", ngaySinh: "04/03/2000", phai: "Nam", noiSinh: "Cần Thơ", danToc: "Khmer", sdt: "0948380424" },
+            { stt: 14, hoTen: "Phạm Trung Hiếu", ngaySinh: "11/09/1986", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0986559163" },
+            { stt: 15, hoTen: "Nguyễn Văn Học", ngaySinh: "05/04/1988", phai: "Nam", noiSinh: "Hà Nam", danToc: "Kinh", sdt: "0917661177" },
+            { stt: 16, hoTen: "Hoàng Thị Hồng", ngaySinh: "09/02/2003", phai: "Nữ", noiSinh: "An Giang", danToc: "Kinh", sdt: "0333561471" },
+            { stt: 17, hoTen: "Nguyễn Trần Đăng Hưng", ngaySinh: "03/05/1987", phai: "Nam", noiSinh: "Gia Lai", danToc: "Kinh", sdt: "0969213789" },
+            { stt: 18, hoTen: "Trần Thị Hường", ngaySinh: "21/10/1984", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0907268315" },
+            { stt: 19, hoTen: "Dương Văn Hữu", ngaySinh: "17/01/1983", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0986767680" },
+            { stt: 20, hoTen: "Lê Ngọc Huyền", ngaySinh: "19/05/1996", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0778180839" },
+            { stt: 21, hoTen: "Lý Ái Huỳnh", ngaySinh: "20/08/1984", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0917605704" },
+            { stt: 22, hoTen: "Đồng Thị Chúc Lam", ngaySinh: "06/09/2004", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0363375748" },
+            { stt: 23, hoTen: "Tăng Hoài Linh", ngaySinh: "02/01/1990", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0947457538" },
+            { stt: 24, hoTen: "Lê Thị Linh", ngaySinh: "02/02/1991", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0359808078" },
+            { stt: 25, hoTen: "Liêu Tú Loan", ngaySinh: "19/04/1986", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0932779113" },
+            { stt: 26, hoTen: "Nguyễn Thị Bé Na", ngaySinh: "15/09/2005", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0825409050" },
+            { stt: 27, hoTen: "Nguyễn Thị Nga", ngaySinh: "05/06/1992", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0945626807" },
+            { stt: 28, hoTen: "Đỗ Thị Kiều Nga", ngaySinh: "11/11/1995", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0941604788" },
+            { stt: 29, hoTen: "Trần Thị Thùy Ngân", ngaySinh: "07/12/1986", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0947676161" },
+            { stt: 30, hoTen: "Đỗ Tuyết Ngân", ngaySinh: "22/02/2005", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0942696254" },
+            { stt: 31, hoTen: "Lâm Vương Phương Nghi", ngaySinh: "10/03/2005", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0946885771" },
+            { stt: 32, hoTen: "Nguyễn Thị Bé Ngoan", ngaySinh: "01/11/1990", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0949514606" },
+            { stt: 33, hoTen: "Hồ Chí Ngoan", ngaySinh: "28/09/1993", phai: "Nam", noiSinh: "Sóc Trăng", danToc: "Kinh", sdt: "0373613625" },
+            { stt: 34, hoTen: "Dương Thị Sà Phết Canh Nha", ngaySinh: "23/06/1987", phai: "Nữ", noiSinh: "Sóc Trăng", danToc: "Khmer", sdt: "0365671449" },
+            { stt: 35, hoTen: "Nguyễn Thị Bích Nhi", ngaySinh: "16/06/1985", phai: "Nữ", noiSinh: "Quảng Ngãi", danToc: "Kinh", sdt: "0976455426" },
+            { stt: 36, hoTen: "Ngô Mỹ Như", ngaySinh: "21/11/1996", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0836875900" },
+            { stt: 37, hoTen: "Trần Thị Phương Nhung", ngaySinh: "01/01/1975", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0946055954" },
+            { stt: 38, hoTen: "Đinh Sà Oanh", ngaySinh: "26/05/1986", phai: "Nam", noiSinh: "Sóc Trăng", danToc: "Khmer", sdt: "0384356594" },
+            { stt: 39, hoTen: "Phát Huỳnh Tân", ngaySinh: "28/02/1987", phai: "Nam", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0911945933" },
+            { stt: 40, hoTen: "Võ Hoàng Phi", ngaySinh: "21/01/2003", phai: "Nam", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0966682076" },
+            { stt: 41, hoTen: "Nguyễn Thanh Phong", ngaySinh: "01/01/1993", phai: "Nam", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0878888669" },
+            { stt: 42, hoTen: "Phong Lê Vũ", ngaySinh: "15/09/1995", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0823669959" },
+            { stt: 43, hoTen: "Huỳnh Công Phúc", ngaySinh: "27/05/1972", phai: "Nam", noiSinh: "TP HCM", danToc: "Kinh", sdt: "0963232606" },
+            { stt: 44, hoTen: "Phạm Kim Phụng", ngaySinh: "25/09/2005", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0385075700" },
+            { stt: 45, hoTen: "Bùi Phương Quyên", ngaySinh: "10/11/2000", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0853050663" },
+            { stt: 46, hoTen: "Dư Tô Quyên", ngaySinh: "02/08/2004", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Khmer", sdt: "0858154145" },
+            { stt: 47, hoTen: "Trần Bảo Quyên", ngaySinh: "14/03/2003", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Khmer", sdt: "0941108514" },
+            { stt: 48, hoTen: "Đinh Thị Mai Quỳnh", ngaySinh: "04/04/1985", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0944898050" },
+            { stt: 49, hoTen: "Dương Chanh Đô Ra", ngaySinh: "01/01/1992", phai: "Nam", noiSinh: "Sóc Trăng", danToc: "Khmer", sdt: "0336419628" },
+            { stt: 50, hoTen: "Thạch Sua", ngaySinh: "26/10/1987", phai: "Nam", noiSinh: "Sóc Trăng", danToc: "Khmer", sdt: "0366468166" },
+            { stt: 51, hoTen: "Bùi Văn Tâm", ngaySinh: "29/12/1973", phai: "Nam", noiSinh: "Vĩnh Long", danToc: "Kinh", sdt: "0945579594" },
+            { stt: 52, hoTen: "Lê Thi Tâm", ngaySinh: "30/04/1975", phai: "Nữ", noiSinh: "Thanh Hoá", danToc: "Kinh", sdt: "0397995865" },
+            { stt: 53, hoTen: "Thành Kim Chí", ngaySinh: "30/04/1994", phai: "Nam", noiSinh: "Sóc Trăng", danToc: "Khmer", sdt: "0767718996" },
+            { stt: 54, hoTen: "Nguyễn Tiến Thành", ngaySinh: "20/12/1983", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0329623454" },
+            { stt: 55, hoTen: "Hồ Xuân Thành", ngaySinh: "02/02/1992", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0934171353" },
+            { stt: 56, hoTen: "Trần Thi Mai Thi", ngaySinh: "28/01/1985", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0915994344" },
+            { stt: 57, hoTen: "Nguyễn Thị Mỹ Thiện", ngaySinh: "11/12/1980", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0914844964" },
+            { stt: 58, hoTen: "Huỳnh Bá Thiên", ngaySinh: "01/06/1982", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0919364437" },
+            { stt: 59, hoTen: "Trần Đức Thịnh", ngaySinh: "20/04/1997", phai: "Nam", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0919869534" },
+            { stt: 60, hoTen: "Lê Thị Thơ", ngaySinh: "21/01/1991", phai: "Nữ", noiSinh: "Thái Bình", danToc: "Kinh", sdt: "0946902390" },
+            { stt: 61, hoTen: "Thông Lý Minh", ngaySinh: "26/04/2005", phai: "Nam", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0833256707" },
+            { stt: 62, hoTen: "Nhan Hồng Thư", ngaySinh: "10/01/1994", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0914249124" },
+            { stt: 63, hoTen: "Nguyễn Thị Vân Thư", ngaySinh: "02/09/2004", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0867897645" },
+            { stt: 64, hoTen: "Trần Thị Tuyết Thư", ngaySinh: "01/01/1994", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0838900199" },
+            { stt: 65, hoTen: "Huỳnh Ngọc Thúy", ngaySinh: "15/09/1987", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0919985770" },
+            { stt: 66, hoTen: "Nguyễn Thị Bích Thủy", ngaySinh: "24/07/1973", phai: "Nữ", noiSinh: "Đồng Tháp", danToc: "Kinh", sdt: "0354638889" },
+            { stt: 67, hoTen: "Phạm Ngọc Tiên", ngaySinh: "20/03/1979", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0939880704" },
+            { stt: 68, hoTen: "Trần Thị Kiều Tiên", ngaySinh: "01/10/1989", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0379499546" },
+            { stt: 69, hoTen: "Quách Minh Toàn", ngaySinh: "09/09/1997", phai: "Nam", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0916087078" },
+            { stt: 70, hoTen: "Nguyễn Bích Trâm", ngaySinh: "26/06/2004", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0941560226" },
+            { stt: 71, hoTen: "Nguyễn Thị Trầm", ngaySinh: "08/08/1989", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0372010394" },
+            { stt: 72, hoTen: "Phạm Thị Ngọc Trân", ngaySinh: "26/03/2005", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0813936205" },
+            { stt: 73, hoTen: "Bùi Thị Bảo Trân", ngaySinh: "14/03/2000", phai: "Nữ", noiSinh: "Vĩnh Long", danToc: "Kinh", sdt: "0377885950" },
+            { stt: 74, hoTen: "Nguyễn Thị Quỳnh Trang", ngaySinh: "21/02/2004", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0916954890" },
+            { stt: 75, hoTen: "Lê Ngọc Hương Trang", ngaySinh: "07/09/1972", phai: "Nữ", noiSinh: "TP HCM", danToc: "Kinh", sdt: "0964649021" },
+            { stt: 76, hoTen: "Đỗ Thị Mỹ Trang", ngaySinh: "25/05/1981", phai: "Nữ", noiSinh: "Quảng Nam", danToc: "Kinh", sdt: "0393106833" },
+            { stt: 77, hoTen: "Lê Anh Trí", ngaySinh: "29/01/2002", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0945634445" },
+            { stt: 78, hoTen: "Lâm Ngọc Trường", ngaySinh: "18/11/1999", phai: "Nam", noiSinh: "Sóc Trăng", danToc: "Khmer", sdt: "0772714062" },
+            { stt: 79, hoTen: "Mã Thanh Tú", ngaySinh: "08/06/1996", phai: "Nữ", noiSinh: "Sóc Trăng", danToc: "Kinh", sdt: "0961162973" },
+            { stt: 80, hoTen: "Nguyễn Đức Tú", ngaySinh: "02/07/1994", phai: "Nam", noiSinh: "Hải Dương", danToc: "Kinh", sdt: "0903037512" },
+            { stt: 81, hoTen: "Lê Thị Hồng Tuyển", ngaySinh: "07/03/1978", phai: "Nữ", noiSinh: "Vĩnh Phú", danToc: "Kinh", sdt: "0377337673" },
+            { stt: 82, hoTen: "Trần Thị Bích Tuyền", ngaySinh: "17/05/2003", phai: "Nữ", noiSinh: "Sóc Trăng", danToc: "Kinh", sdt: "0879621201" },
+            { stt: 83, hoTen: "Nguyễn Thị Bích Tuyên", ngaySinh: "11/08/1983", phai: "Nữ", noiSinh: "Hậu Giang", danToc: "Kinh", sdt: "0333660151" },
+            { stt: 84, hoTen: "Nguyễn Quốc Tuyên", ngaySinh: "16/12/1991", phai: "Nam", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0941909193" },
+            { stt: 85, hoTen: "Huỳnh Thị Thanh Vân", ngaySinh: "19/08/2004", phai: "Nữ", noiSinh: "Bạc Liêu", danToc: "Kinh", sdt: "0913953613" },
+            { stt: 86, hoTen: "Đặng Thị Tường Vi", ngaySinh: "13/02/2004", phai: "Nữ", noiSinh: "Kiên Giang", danToc: "Kinh", sdt: "0834584992" },
+            { stt: 87, hoTen: "Phùng Nhật Vũ", ngaySinh: "01/08/1968", phai: "Nam", noiSinh: "Tiền Giang", danToc: "Kinh", sdt: "0913820737" },
+            { stt: 88, hoTen: "Lái Hoàng Vũ", ngaySinh: "25/12/1984", phai: "Nam", noiSinh: "Kiên Giang", danToc: "Khmer", sdt: "0374641000" },
+            { stt: 89, hoTen: "Trần Quang Vũ", ngaySinh: "07/12/1999", phai: "Nam", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0829580482" },
+            { stt: 90, hoTen: "Trần Hữu Vy", ngaySinh: "12/02/1984", phai: "Nam", noiSinh: "Cà Mau", danToc: "Khmer", sdt: "0948635353" },
+            { stt: 91, hoTen: "Ong Thị Mỹ Yên", ngaySinh: "21/10/1998", phai: "Nữ", noiSinh: "Cà Mau", danToc: "Kinh", sdt: "0944625291" }
+        ];
+
+        // Lấy các phần tử DOM
+        const tableBody = document.getElementById('table-body');
+        const cardsContainer = document.getElementById('cards-container');
+        const searchInput = document.getElementById('search-input');
+        const filterGender = document.getElementById('filter-gender');
+        const filterEthnic = document.getElementById('filter-ethnic');
+        const countDisplay = document.getElementById('count-display');
+        const btnReset = document.getElementById('btn-reset');
+        const noResult = document.getElementById('no-result');
+        const toast = document.getElementById('toast');
+
+        // Hàm copy số điện thoại nhanh
+        function copyPhone(phone) {
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = phone;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            // Hiển thị toast
+            toast.classList.remove('opacity-0', 'translate-y-20');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-20');
+            }, 2000);
+        }
+
+        // Render danh sách (Cả bảng Desktop và thẻ Mobile)
+        function renderList(list) {
+            // Cập nhật số đếm kết quả
+            countDisplay.textContent = list.length;
+
+            if (list.length === 0) {
+                tableBody.innerHTML = '';
+                cardsContainer.innerHTML = '';
+                noResult.classList.remove('hidden');
+                return;
+            }
+            noResult.classList.add('hidden');
+
+            // 1. Render Table (Desktop)
+            let tableHTML = '';
+            list.forEach((item, idx) => {
+                const genderStyle = item.phai === 'Nữ' ? 'text-pink-600 bg-pink-50' : 'text-sky-600 bg-sky-50';
+                tableHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 py-3.5 text-center font-semibold text-gray-500">${idx + 1}</td>
+                        <td class="px-6 py-3.5 font-bold text-slate-900">${item.hoTen}</td>
+                        <td class="px-4 py-3.5 text-center text-gray-600">${item.ngaySinh}</td>
+                        <td class="px-4 py-3.5 text-center">
+                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${genderStyle}">${item.phai}</span>
+                        </td>
+                        <td class="px-4 py-3.5 text-gray-700 font-medium">${item.noiSinh}</td>
+                        <td class="px-4 py-3.5 text-center">
+                            <span class="px-2 py-0.5 text-xs font-medium rounded border ${item.danToc === 'Khmer' ? 'text-amber-700 border-amber-200 bg-amber-50' : 'text-slate-600 border-slate-200 bg-slate-50'}">${item.danToc}</span>
+                        </td>
+                        <td class="px-6 py-3.5 text-center font-bold text-slate-800 tracking-wider">
+                            <div class="flex items-center justify-center gap-1">
+                                <span>${item.sdt}</span>
+                                <button onclick="copyPhone('${item.sdt}')" class="text-gray-400 hover:text-blue-600 transition-colors p-1" title="Sao chép SĐT">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-6 py-3.5">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="tel:${item.sdt}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-1.5 px-3 rounded text-center transition duration-150 shadow-sm flex items-center justify-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                    Gọi
+                                </a>
+                                <a href="https://zalo.me/${item.sdt}" target="_blank" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1.5 px-3 rounded text-center transition duration-150 shadow-sm flex items-center justify-center gap-1">
+                                    💬 Zalo
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = tableHTML;
+
+            // 2. Render Cards (Mobile)
+            let cardsHTML = '';
+            list.forEach((item, idx) => {
+                const genderStyle = item.phai === 'Nữ' ? 'text-pink-600 bg-pink-50' : 'text-sky-600 bg-sky-50';
+                cardsHTML += `
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 space-y-3 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 bg-blue-600 text-white font-bold text-xs px-2.5 py-0.5 rounded-br-lg">
+                            ${idx + 1}
+                        </div>
+                        <div class="flex justify-between items-start pt-2">
+                            <div>
+                                <h4 class="text-lg font-bold text-slate-900">${item.hoTen}</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Ngày sinh: ${item.ngaySinh}</p>
+                            </div>
+                            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full ${genderStyle}">${item.phai}</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-xs border-t border-slate-100 pt-3">
+                            <div>
+                                <span class="text-gray-400 block">Quê quán:</span>
+                                <span class="font-bold text-slate-800">${item.noiSinh}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block">Dân tộc:</span>
+                                <span class="font-bold text-slate-800">${item.danToc}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-2 rounded-lg flex items-center justify-between text-sm font-bold text-slate-800">
+                            <span>SĐT: ${item.sdt}</span>
+                            <button onclick="copyPhone('${item.sdt}')" class="text-gray-400 hover:text-blue-600 transition-colors p-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <a href="tel:${item.sdt}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-2.5 rounded-lg text-center shadow-sm flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                Gọi ngay
+                            </a>
+                            <a href="https://zalo.me/${item.sdt}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2.5 rounded-lg text-center shadow-sm flex items-center justify-center gap-2">
+                                Tìm trên Zalo
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            cardsContainer.innerHTML = cardsHTML;
+        }
+
+        // Loại bỏ dấu tiếng Việt để tìm kiếm chính xác không dấu
+        function removeVietnameseTones(str) {
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|ã|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+            str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+            str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+            str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+            str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+            str = str.replace(/Ỳ|Ý|Y|Ỷ|Ỹ/g, "Y");
+            str = str.replace(/Đ/g, "D");
+            // Loại bỏ một số khoảng trắng và dấu phụ không mong muốn
+            str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // huyền, sắc, ngã, hỏi, nặng
+            str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // mũ, á, ơ
+            return str.trim().toLowerCase();
+        }
+
+        // Xử lý bộ lọc thông minh
+        function filterData() {
+            const keyword = removeVietnameseTones(searchInput.value);
+            const selectedGender = filterGender.value;
+            const selectedEthnic = filterEthnic.value;
+
+            const filtered = dataSet.filter(item => {
+                const matchKeyword = keyword === '' || 
+                    removeVietnameseTones(item.hoTen).includes(keyword) || 
+                    item.sdt.includes(keyword) ||
+                    removeVietnameseTones(item.noiSinh).includes(keyword) ||
+                    removeVietnameseTones(item.danToc).includes(keyword);
+
+                const matchGender = selectedGender === '' || item.phai === selectedGender;
+                const matchEthnic = selectedEthnic === '' || item.danToc.toLowerCase() === selectedEthnic.toLowerCase();
+
+                return matchKeyword && matchGender && matchEthnic;
+            });
+
+            renderList(filtered);
+        }
+
+        // Reset toàn bộ bộ lọc
+        btnReset.addEventListener('click', () => {
+            searchInput.value = '';
+            filterGender.value = '';
+            filterEthnic.value = '';
+            renderList(dataSet);
+        });
+
+        // Gắn sự kiện lắng nghe bộ lọc
+        searchInput.addEventListener('input', filterData);
+        filterGender.addEventListener('change', filterData);
+        filterEthnic.addEventListener('change', filterData);
+
+        // Khởi động render lần đầu
+        window.onload = function() {
+            renderList(dataSet);
+        };
+    </script>
+</body>
+</html>
